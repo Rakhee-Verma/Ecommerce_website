@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  Box,
   Button,
   Container,
   FormLabel,
@@ -72,7 +73,7 @@ export const Login = () => {
     return true;
   };
   const handleSubmit = async () => {
-    if (!validateusername() || !validateEmail() || !validatePassword()) return;
+    // if (!validateusername() || !validateEmail() || !validatePassword()) return;
 
     const payload = {
       username: formData.username,
@@ -88,14 +89,16 @@ export const Login = () => {
         setFormData({ username: "", email: "", password: "" });
       } else {
         const res = await axios.get(apiUrl);
-        const userFound = res.data.find(
+        const userFound = await res.data.find(
           (u) => u.email === formData.email &&u.password===formData.password
         );
+
+        console.log("typeof userFound", typeof userFound, userFound)
 
         if (userFound) {
           console.log(`Welcome back, ${userFound.username}!`);
           localStorage.setItem('accessToken',JSON.stringify(userFound));
-          navigate("/formTable");
+          navigate("/home");
         } else {
           console.log("User not found! Please sign up first.");
         }
@@ -106,6 +109,13 @@ export const Login = () => {
   };
 
   return (
+     <Box
+      sx={{
+        minHeight: "100vh", 
+        justifyContent: "center", 
+        alignItems: "center", 
+      }}
+    >
     <Container
       sx={{
         width: { xs: "90%", sm: "70%", md: "45%", lg: "35%" },
@@ -115,7 +125,7 @@ export const Login = () => {
         py: { xs: "1rem", sm: "1.5rem" },
         px: { xs: "1.5rem", sm: "2rem" },
         borderRadius: 2,
-        marginTop: { xs: "2rem", md: "4rem" },
+        marginTop:  "2rem" ,
         backgroundColor: "#fff",
       }}
     >
@@ -216,5 +226,6 @@ export const Login = () => {
         )}
       </Typography>
     </Container>
+    </Box>
   );
 };

@@ -1,10 +1,14 @@
-import { BrowserRouter, Route, Router, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './App.css'
-import { Login } from './components/Login'
+import { Login } from './pages/Login'
 import { FormTable } from './components/FormTable'
 import { EditUserDetails } from './components/EditUserDetails'
 import ProtectedRoute from './components/ProtectedRoute'
 import { useState } from 'react'
+import { Home } from './pages/Home'
+import { Navbar } from './components/Navbar'
+import { VeiwDetails } from './pages/VeiwDeatils'
+import { AddCard } from './pages/Card'
 
 function App() {
   const storedToken = localStorage.getItem('accessToken')
@@ -14,6 +18,7 @@ function App() {
   return (
     <>
       <BrowserRouter>
+      <Navbar userDetails={storedToken}/>
         <Routes>
           <Route path='/' element={<Login setIsLoggedIn={setIsLoggedIn} />} />
           <Route path='/formTable' element={
@@ -28,6 +33,15 @@ function App() {
             </ProtectedRoute>
             
             } />
+            <Route path='/home' element={ <ProtectedRoute isLoggedIn={storedToken}>
+              <Home />
+            </ProtectedRoute>}/>
+            <Route path='/veiwDetails' element={ <ProtectedRoute isLoggedIn={storedToken}>
+              <VeiwDetails />
+            </ProtectedRoute>}/>
+             <Route path='/card' element={ <ProtectedRoute isLoggedIn={storedToken}>
+              <AddCard />
+            </ProtectedRoute>}/>
         </Routes>
       </BrowserRouter>
     </>
