@@ -6,7 +6,7 @@ export const fetchProducts = createAsyncThunk(
   "product/fetchProducts",
   async (_, thunkAPI) => {
     try {
-      const response = await axios.get("https://fakestoreapi.com/products");
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/products`);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch products");

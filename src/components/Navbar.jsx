@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { styled, alpha } from "@mui/material/styles";
+import { styled, alpha, useTheme } from "@mui/material/styles";
 import {
   AppBar,
   Box,
@@ -22,7 +22,9 @@ import { useDispatch, useSelector } from "react-redux";
 import SearchIcon from '@mui/icons-material/Search';
 import { filterProductByCategory, filterProductBySearch } from "../redux/productSlice";
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-export const Navbar = ({ userDetails }) => {
+import LightModeIcon from '@mui/icons-material/LightMode';
+import NightlightRoundIcon from '@mui/icons-material/NightlightRound';
+export const Navbar = ({ userDetails, darkMode, setDarkMode }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const cartProduct = useSelector(state => state?.cart?.cart || [])
@@ -32,9 +34,9 @@ export const Navbar = ({ userDetails }) => {
   const [openFilter, setOpenFilter] = useState(false);
 
   const categories = ["All", ...new Set(productDetails.map((p) => p.category))];
-    const handleFilterIcon = (event) => {
+  const handleFilterIcon = (event) => {
     setAnchorEl(event.currentTarget);
-    setOpenFilter(true);
+    setOpenFilter((prev) => !prev);
   };
 
   const handleCategorySelect = (category) => {
@@ -59,7 +61,10 @@ export const Navbar = ({ userDetails }) => {
   const handleSearchChange = (e) => {
     dispatch(filterProductBySearch(e.target.value));
   };
-
+  const handleLogo = () => {
+    navigate('/home')
+  }
+  const theme = useTheme();
   return (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -71,7 +76,8 @@ export const Navbar = ({ userDetails }) => {
                 variant="h6"
                 noWrap
                 component="div"
-                sx={{ display: { xs: "none", sm: "block" } }}
+                sx={{ display: { xs: "none", sm: "block", cursor: 'pointer' } }}
+                onClick={handleLogo}
               >
                 Website
               </Typography>
@@ -84,7 +90,13 @@ export const Navbar = ({ userDetails }) => {
                   width: 300,
                   backgroundColor: "white",
                   borderRadius: "8px",
-
+                  backgroundColor:
+                    theme.palette.mode === "dark"
+                      ? theme.palette.background.paper 
+                      : "#fff",
+                  "& .MuiInputBase-input": {
+                    color: theme.palette.text.primary, 
+                  },
                 }}
                 InputProps={{
                   startAdornment: (
@@ -96,7 +108,7 @@ export const Navbar = ({ userDetails }) => {
 
             </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%', gap: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%', gap: 2 }}>
               <Typography>{username.username}</Typography>
               <IconButton color="inherit" size="large" onClick={handleFilterIcon}>
                 <FilterAltIcon />
@@ -129,6 +141,10 @@ export const Navbar = ({ userDetails }) => {
                   </Fade>
                 )}
               </Popper>
+              <IconButton color="inherit" size="large" onClick={() => setDarkMode((prev) => !prev)}>
+                {darkMode ? (<LightModeIcon />) : (<NightlightRoundIcon />)}
+
+              </IconButton>
               <IconButton color="inherit" size="large" onClick={handleLogOutButton}>
                 <LogoutIcon />
               </IconButton>

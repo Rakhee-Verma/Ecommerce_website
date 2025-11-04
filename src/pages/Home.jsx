@@ -22,11 +22,12 @@ export const Home = () => {
         console.log('productttt', product);
     }
     const handleVeiwDetails = (product) => {
-        dispatch(selectedItem(product.id));
+        // dispatch(selectedItem(product.id));
         navigate(`/veiwDetails/${product.id}`)
     }
     const handleCardVeiwDetails = (product) => {
-        navigate('/veiwDetails', { state: { product } })
+        // dispatch(selectedItem(product.id));
+        navigate(`/veiwDetails/${product.id}`)
     }
     // loading
     if (loading) return <Typography align="center">Loading products...</Typography>;

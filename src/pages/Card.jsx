@@ -64,7 +64,7 @@ export const AddCard = () => {
                             >
                                 {product.description.length > 40 ? `${product.description.slice(0, 40)}...` : product.description}
                             </Typography>
-                            <Typography component="h5" sx={{fontWeight:"bold"}}>Price:${product.price}</Typography>
+                            <Typography component="h5" sx={{fontWeight:"bold"}}>Price:${product.price*product.count}</Typography>
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
                                 <Rating
                                     name="read-only"
@@ -79,7 +79,7 @@ export const AddCard = () => {
                             </Box>
                         </CardContent>
                         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                            <Button variant="outlined" sx={{ display: 'flex', justifyContent: 'space-between', width: '35%', my: 2 }}>
+                            <Button variant="outlined" sx={{ display: 'flex', justifyContent: 'space-between', width: '35%', mb:2, }}>
                                 <span onClick={()=>dispatch(decrese(product.id))}> -</span><span>{product.count}</span><span onClick={()=>dispatch(increase(product.id))}>+</span></Button>
                         </Box>
 
