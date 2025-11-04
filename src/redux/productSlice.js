@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// 🔹 1. Create async thunk for API call
+// 🔹 Fetch all products
 export const fetchProducts = createAsyncThunk(
   "product/fetchProducts",
   async (_, thunkAPI) => {
@@ -13,16 +13,45 @@ export const fetchProducts = createAsyncThunk(
     }
   }
 );
-
-// 🔹 2. Create slice
+// 🔹 Create slice
 const productSlice = createSlice({
   name: "product",
   initialState: {
     product: [],
+    filterProducts: [],
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    filterProductBySearch: (state, action) => {
+      const searchItem = action.payload.toLowerCase();
+      state.filterProducts = state.product.filter(
+        (item) =>
+          item.title.toLowerCase().includes(searchItem) ||
+          item.description.toLowerCase().includes(searchItem) ||
+          item.price.toString().includes(searchItem)
+      );
+    },
+
+     filterProductByCategory: (state, action) => {
+      const category = action.payload;
+      if (category === "All") {
+        state.filterProducts = state.product;
+      } else {
+        state.filterProducts = state.product.filter(
+          (p) => p.category === category
+        );
+      }
+    },
+
+    // ✅ New reducer: select a single product
+    selectedItem: (state, action) => {
+      const itemId = action.payload;
+      state.selectedItem = state.product.find((p) => p.id === itemId) || null;
+    },
+
+
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchProducts.pending, (state) => {
@@ -32,12 +61,17 @@ const productSlice = createSlice({
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.product = action.payload;
+        state.filterProducts = action.payload;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+
+      
   },
 });
+
+export const { filterProductBySearch, filterProductByCategory, selectedItem} = productSlice.actions;
 
 export default productSlice.reducer;
