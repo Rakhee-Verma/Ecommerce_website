@@ -36,7 +36,7 @@ function App() {
             <Route path='/home' element={ <ProtectedRoute isLoggedIn={storedToken}>
               <Home />
             </ProtectedRoute>}/>
-            <Route path='/veiwDetails' element={ <ProtectedRoute isLoggedIn={storedToken}>
+            <Route path='/veiwDetails/:id' element={ <ProtectedRoute isLoggedIn={storedToken}>
               <VeiwDetails />
             </ProtectedRoute>}/>
              <Route path='/card' element={ <ProtectedRoute isLoggedIn={storedToken}>

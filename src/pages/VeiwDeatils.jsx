@@ -1,10 +1,36 @@
-import { Box, Card, CardContent, CardMedia, Rating, Typography } from "@mui/material";
-import { useLocation } from "react-router-dom";
+import { Box, Button, Card, CardContent, CardMedia, Rating, Typography } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useParams } from "react-router-dom";
+import { AddtoCart, decrese, increase } from "../redux/cardSlice";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export const VeiwDetails = () => {
+    const dispatch = useDispatch()
+    const cartProducts = useSelector((state) => state.cart.cart);
     const location = useLocation();
-    const { product } = location.state;
+    // const { product } = location.state;
+    // const product = useSelector((state) => state.product.selectedItem);
+    const [product, setProduct] = useState({});
+
+    const { id } = useParams()
+
+    console.log("id", id)
+
+    async function getProductDetails () {
+        const res = await axios.get(`https://fakestoreapi.com/products/${id}`)
+        console.log("res", res)
+        setProduct(res.data)
+    }
+
+    useEffect(() => {
+        getProductDetails();
+    }, [])
+
     console.log(product, 'veiwproduct');
+    const cartItem = cartProducts.find((item) => item.id === product.id);
+    const count = cartItem ? cartItem.count : 0;
+    console.log(count, 'count');
 
     return (
         <>
@@ -53,17 +79,30 @@ export const VeiwDetails = () => {
                         <Typography variant="p" sx={{ color: 'text.secondary', mb: 1 }}>
                             {product.category}
                         </Typography>
-                        <Typography variant="h5" sx={{ pt: 2 }}>${product.price}</Typography>
+                        <Box sx={{ display: 'flex', }}>
+                            <Typography variant="h5" sx={{ pt: 2 }}>${product.price}</Typography>
+                            <Box sx={{ display: 'flex', }}>
+                                <Button variant="outlined" sx={{ display: 'flex', justifyContent: 'space-between', my: 2, marginLeft: '2rem' }}>
+                                    <span onClick={() => dispatch(decrese(product.id))} style={{ marginInline: '1rem' }}> -</span><span>{count}</span><span onClick={() => dispatch(increase(product.id))} style={{ marginInline: '1rem' }}>+</span>
+                                </Button>
+                            </Box>
+                                <Button variant="contained"
+                                    color="primary"
+                                    onClick={() => dispatch(AddtoCart(product))}
+                                    sx={{ m: 2 }}>Add to Cart</Button>
+                            
+                        </Box>
+
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
                             <Rating
                                 name="read-only"
-                                value={product.rating.rate}
+                                value={product?.rating?.rate}
                                 precision={0.5}
                                 readOnly
-                                sx={{ color: "#FFD700" }} 
+                                sx={{ color: "#FFD700" }}
                             />
                             <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                                ({product.rating.rate}) rating
+                                {product?.rating?.rate} rating
                             </Typography>
                         </Box>
                     </CardContent>

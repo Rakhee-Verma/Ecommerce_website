@@ -1,15 +1,17 @@
 import axios from "axios";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts } from "../redux/productSlice";
+import { fetchProducts, selectedItem } from "../redux/productSlice";
 import { Box, Button, Card, CardActionArea, CardContent, CardMedia, Container, Rating, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { AddtoCart } from "../redux/cardSlice";
+import { toast, ToastContainer } from "react-toastify";
 export const Home = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const products = useSelector((state) => state.product.product)
-    console.log("product", products);
+    // const products = useSelector((state) => state.product.product)
+    const { filterProducts, loading } = useSelector((state) => state.product);
+    console.log("filterProducts", filterProducts);
 
 
     useEffect(() => {
@@ -17,28 +19,35 @@ export const Home = () => {
     }, [dispatch]);
     const handleAddToCart = (product) => {
         dispatch(AddtoCart(product))
-        console.log('productttt',product);
-        
-        navigate('/card')
+        console.log('productttt', product);
     }
     const handleVeiwDetails = (product) => {
+        dispatch(selectedItem(product.id));
+        navigate(`/veiwDetails/${product.id}`)
+    }
+    const handleCardVeiwDetails = (product) => {
         navigate('/veiwDetails', { state: { product } })
     }
+    // loading
+    if (loading) return <Typography align="center">Loading products...</Typography>;
+    // react-toastify
+    const notify = () => toast.success("Product added to cart!");
     return (
         <Container sx={{ my: 4 }}>
             <Box sx={{
                 display: 'grid', gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)', }, gap: 4, justifyContent: 'center'
             }}>
-                {products.map((product) => {
+                {filterProducts.map((product) => {
                     return (
-                        <Card sx={{ maxWidth: 345 }} key={product.id}>
-                            <CardActionArea>
+                        <Card sx={{ maxWidth: 345 }} key={product.id} >
+                            <CardActionArea onClick={() => handleCardVeiwDetails(product)}>
                                 <CardMedia
                                     component="img"
                                     height="140"
                                     image={product.image}
                                     alt="green iguana"
                                     sx={{ objectFit: "contain", }}
+
                                 />
                                 <CardContent>
                                     <Typography gutterBottom variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
@@ -48,12 +57,29 @@ export const Home = () => {
 
                                     </Typography>
                                     <Typography>{product.description.length > 35 ? `${product.description.slice(0, 35)}...` : product.description}</Typography>
-                                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                    <Box
+                                        sx={{
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            backgroundColor: "#f9fafb",
+                                            color: "#4b5563",
+                                            borderRadius: "8px",
+                                            fontSize: "0.75rem",
+                                            fontWeight: 500,
+                                            px: 1.5,
+                                            py: 0.6,
+                                            border: "1px solid #e5e7eb",
+                                        }}
+                                    >
                                         {product.category}
-                                    </Typography>
-                                    <Typography sx={{fontWeight:'bold'}}>${product.price}</Typography>
+                                    </Box>
+                                    {/* <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                        {product.category}
+                                    </Typography> */}
+                                    <Typography sx={{ fontWeight: 'bold' }}>${product.price}</Typography>
                                 </CardContent>
-                                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb:2 }}>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
                                     <Rating
                                         name="read-only"
                                         value={product.rating.rate}
@@ -75,7 +101,12 @@ export const Home = () => {
                                         fontWeight: "bold",
                                         textTransform: "none",
                                     }}
-                                    onClick={() => handleAddToCart(product)}
+                                    onClick={() => {
+                                        handleAddToCart(product);
+                                        notify();
+                                    }
+
+                                    }
                                 >
                                     Add to Cart
                                 </Button>
@@ -95,6 +126,7 @@ export const Home = () => {
                     )
                 })}
             </Box>
+            <ToastContainer />
         </Container>
     )
 }
