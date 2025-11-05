@@ -1,21 +1,24 @@
-import { Box, Button, CardContent, CardMedia, Rating, Typography } from "@mui/material";
-import { useLocation } from "react-router-dom"
+import { Box, Button, CardActionArea, CardContent, CardMedia, Rating, Typography } from "@mui/material";
+import { useLocation, useNavigate, useParams } from "react-router-dom"
 import { Card } from '@mui/material';
 import { useDispatch, useSelector } from "react-redux";
 import { decrese, increase } from "../redux/cardSlice";
 export const AddCard = () => {
     // const location = useLocation()
     // const cardProduct = location.state;
+    const navigate=useNavigate()
     const cardProduct = useSelector((state) => state.cart.cart)
     console.log(cardProduct, 'cardProduct')
     const dispatch=useDispatch()
+    const handleProductVeiw=(product)=>{
+    navigate(`/veiwDetails/${product.id}`)
+    }
     return (
 
         <Box
             sx={{
                 py: 4,
                 display: "flex",
-                flexDirection:'column',
                 gap:4,
                 marginLeft: '2rem'
             }}
@@ -32,6 +35,7 @@ export const AddCard = () => {
 
                         }}
                     >
+                        <CardActionArea onClick={()=>handleProductVeiw(product)}>
                         <CardMedia
                             component="img"
                             alt={product.title}
@@ -78,6 +82,7 @@ export const AddCard = () => {
                                 </Typography>
                             </Box>
                         </CardContent>
+                        </CardActionArea>
                         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                             <Button variant="outlined" sx={{ display: 'flex', justifyContent: 'space-between', width: '35%', mb:2, }}>
                                 <span onClick={()=>dispatch(decrese(product.id))}> -</span><span>{product.count}</span><span onClick={()=>dispatch(increase(product.id))}>+</span></Button>

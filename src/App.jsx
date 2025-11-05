@@ -4,7 +4,7 @@ import { Login } from './pages/Login'
 import { FormTable } from './components/FormTable'
 import { EditUserDetails } from './components/EditUserDetails'
 import ProtectedRoute from './components/ProtectedRoute'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Home } from './pages/Home'
 import { Navbar } from './components/Navbar'
 import { VeiwDetails } from './pages/VeiwDeatils'
@@ -38,12 +38,12 @@ function App() {
             </ProtectedRoute>
 
           } />
-          <Route path='/editUserDetails' element={
+          {/* <Route path='/editUserDetails' element={
             <ProtectedRoute isLoggedIn={isLoggedIn}>
               <EditUserDetails />
             </ProtectedRoute>
 
-          } />
+          } /> */}
           <Route path='/home' element={<ProtectedRoute isLoggedIn={storedToken}>
             <Home />
           </ProtectedRoute>} />
