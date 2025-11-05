@@ -24,6 +24,7 @@ import { filterProductByCategory, filterProductBySearch } from "../redux/product
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import NightlightRoundIcon from '@mui/icons-material/NightlightRound';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 export const Navbar = ({ userDetails, darkMode, setDarkMode }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ export const Navbar = ({ userDetails, darkMode, setDarkMode }) => {
   console.log(productDetails, 'productDetails');
   const [anchorEl, setAnchorEl] = useState(null);
   const [openFilter, setOpenFilter] = useState(false);
-
+  const [openMoreDetails, setopenMoreDetails] = useState(false)
   const categories = ["All", ...new Set(productDetails.map((p) => p.category))];
   const handleFilterIcon = (event) => {
     setAnchorEl(event.currentTarget);
@@ -65,6 +66,14 @@ export const Navbar = ({ userDetails, darkMode, setDarkMode }) => {
     navigate('/home')
   }
   const theme = useTheme();
+  const handleMoreIcon = (e) => {
+    setAnchorEl(e.currentTarget);
+    setopenMoreDetails(prev=>!prev)
+  }
+  const handleTableButton=()=>{
+    navigate('/formTable')
+    setopenMoreDetails(false);
+  }
   return (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -92,10 +101,10 @@ export const Navbar = ({ userDetails, darkMode, setDarkMode }) => {
                   borderRadius: "8px",
                   backgroundColor:
                     theme.palette.mode === "dark"
-                      ? theme.palette.background.paper 
+                      ? theme.palette.background.paper
                       : "#fff",
                   "& .MuiInputBase-input": {
-                    color: theme.palette.text.primary, 
+                    color: theme.palette.text.primary,
                   },
                 }}
                 InputProps={{
@@ -108,7 +117,7 @@ export const Navbar = ({ userDetails, darkMode, setDarkMode }) => {
 
             </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%', }}>
               <Typography>{username.username}</Typography>
               <IconButton color="inherit" size="large" onClick={handleFilterIcon}>
                 <FilterAltIcon />
@@ -152,6 +161,36 @@ export const Navbar = ({ userDetails, darkMode, setDarkMode }) => {
                 <ShoppingCartIcon fontSize="small" sx={{ color: 'white' }} />
                 <CartBadge badgeContent={cartProduct.length} color="error" overlap="circular" />
               </IconButton>
+              <IconButton color="inherit" size="large" onClick={handleMoreIcon}><MoreVertIcon /></IconButton>
+              <Popper
+                open={openMoreDetails}
+                anchorEl={anchorEl}
+                transition
+                placement="bottom-end"
+              >
+                {({ TransitionProps }) => (
+                  <Fade {...TransitionProps} timeout={250}>
+                    <Paper sx={{ p: 1, width: 120 }}>
+                      <Typography
+                        sx={{
+                          color: "#5d5e8aff",
+                          fontWeight: "600",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.8,
+                          fontSize: "0.9rem",
+                          cursor: "pointer",
+                          py: 0.5,
+                          px: 1,
+                        }}
+                      onClick={ handleTableButton}
+                      >
+                        Admin
+                      </Typography>
+                    </Paper>
+                  </Fade>
+                )}
+              </Popper>
             </Box>
           </Toolbar>
         </AppBar>

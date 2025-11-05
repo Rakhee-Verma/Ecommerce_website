@@ -17,6 +17,7 @@ import {
   Fade,
   Paper,
   Container,
+  ClickAwayListener,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -66,17 +67,11 @@ export const FormTable = () => {
     setOpenDialog(true);
     setOpenRow(null);
   };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setSelectedUser(null);
-  };
-
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${getApi}/${id}`);
       setUserDetails((prev) => prev.filter((u) => u.id !== id));
-      alert("User deleted successfully!");
+      setOpenRow(null);
     } catch (error) {
       console.error("Delete failed:", error);
     }
@@ -90,24 +85,8 @@ export const FormTable = () => {
   const handleDataUpdated = () => {
     getUserData();
   };
-
-  const handleBack = () => {
-    navigate("/");
-  };
- const handleLogoutButton =()=>{
-    localStorage.removeItem('accessToken')
-    navigate('/')
- }
   return (
     <>
-    <Box sx={{display:'flex',justifyContent:'space-between'}}>
-        <Button variant="contained" onClick={handleBack}>
-        <ArrowBackIcon /> Back
-      </Button>
-      <Button variant="contained" onClick={handleLogoutButton}><LogoutIcon/>Logout</Button>
-    </Box>
-      
-
       <Container sx={{ marginTop: "4rem" }}>
         <Box
           sx={{
@@ -142,6 +121,7 @@ export const FormTable = () => {
               }}
             >
               <TableRow>
+                <TableCell></TableCell>
                 <TableCell>User Name</TableCell>
                 <TableCell>Email</TableCell>
                 <TableCell>User ID</TableCell>
@@ -153,6 +133,12 @@ export const FormTable = () => {
             <TableBody>
               {userDetails.map((user, i) => (
                 <TableRow key={i}>
+                  <TableCell sx={{ width: '100px' }}>
+                    {user.profile ? (<img src={user.profile} style={{ width: '80px', height: '45px', objectFit: 'cover', borderRadius: "5px" }} />) : (<Box sx={{ width: '80px', height: '45px', border: 1, borderRadius: '5px', fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', }} >
+                      {user.username?.slice(0, 2).toUpperCase()}
+                    </Box>)}
+
+                  </TableCell>
                   <TableCell>{user.username}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{user.id}</TableCell>
@@ -167,82 +153,73 @@ export const FormTable = () => {
                     </IconButton>
 
                     {openRow === i && (
-                      <Popper
-                        open={openRow === i}
-                        anchorEl={anchorEl}
-                        transition
-                        placement="bottom-end"
-                      >
-                        {({ TransitionProps }) => (
-                          <Fade {...TransitionProps} timeout={250}>
-                            <Paper sx={{ p: 1, width: 120 }}>
-                              <Typography
-                                sx={{
-                                  color: "#5d5e8aff",
-                                  fontWeight: "600",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 0.8,
-                                  fontSize: "0.9rem",
-                                  cursor: "pointer",
-                                  py: 0.5,
-                                  px: 1,
-                                }}
-                                onClick={() => handleEditButton(user)}
-                              >
-                                <EditIcon sx={{ fontSize: "1rem" }} /> Edit
-                              </Typography>
-                              <Typography
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 0.8,
-                                  fontSize: "0.9rem",
-                                  cursor: "pointer",
-                                  color: "#5d5e8aff",
-                                  fontWeight: "600",
-                                  py: 0.5,
-                                  px: 1,
-                                }}
-                                onClick={() => handleDelete(user.id)}
-                              >
-                                <DeleteIcon sx={{ fontSize: "1rem" }} /> Delete
-                              </Typography>
-                            </Paper>
-                          </Fade>
-                        )}
-                      </Popper>
-                    )}
+  <Popper
+    open={openRow === i}
+    anchorEl={anchorEl}
+    placement="bottom-end"
+    transition
+    disablePortal
+  >
+    {({ TransitionProps }) => (
+      <Fade {...TransitionProps} timeout={250}>
+        <Paper sx={{ p: 1, width: 120 }}>
+          {/* ClickAwayListener INSIDE Paper */}
+          <ClickAwayListener onClickAway={() => setOpenRow(null)}>
+            <Box>
+              <Typography
+                sx={{
+                  color: "#5d5e8aff",
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.8,
+                  fontSize: "0.9rem",
+                  cursor: "pointer",
+                  py: 0.5,
+                  px: 1,
+                }}
+                onClick={() => handleEditButton(user)}
+              >
+                <EditIcon sx={{ fontSize: "1rem" }} /> Edit
+              </Typography>
+
+              <Typography
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.8,
+                  fontSize: "0.9rem",
+                  cursor: "pointer",
+                  color: "#5d5e8aff",
+                  fontWeight: 600,
+                  py: 0.5,
+                  px: 1,
+                }}
+                onClick={() => handleDelete(user.id)}
+              >
+                <DeleteIcon sx={{ fontSize: "1rem" }} /> Delete
+              </Typography>
+            </Box>
+          </ClickAwayListener>
+        </Paper>
+      </Fade>
+    )}
+  </Popper>
+)}
+
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
-
-        <Dialog
-          open={openDialog}
-          onClose={handleCloseDialog}
-          maxWidth="xs"
-          fullWidth
-          scroll="paper"
-        >
-          <DialogTitle sx={{fontSize:'1.5rem',color:'#090f58ff',fontWeight:'bold'}}>
-            {selectedUser ? "Edit User" : "Add New User"}
-          </DialogTitle>
-          <DialogContent>
-            <EditUserDetails
-              user={selectedUser}
-              setOpenDialog={setOpenDialog}
-              onDataUpdated={handleDataUpdated}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog} color="secondary">
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <EditUserDetails
+          user={selectedUser}
+          setOpenDialog={setOpenDialog}
+          openDialog={openDialog}
+          onDataUpdated={handleDataUpdated}
+          selectedUser={selectedUser}
+        />
       </Container>
     </>
   );
