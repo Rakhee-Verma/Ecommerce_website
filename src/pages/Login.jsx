@@ -16,16 +16,17 @@ export const Login = () => {
     id: "",
     username: "",
     email: "",
-    password:'',
+    password: "",
   });
-  const [isSignUp, setIsSignUp] = useState(true);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState({
     usernameError: "",
     emailError: "",
     password: "",
   });
 
-  const apiUrl = "https://69033beed0f10a340b23481e.mockapi.io/user/users";
+  const apiUrl = `${import.meta.env.VITE_MOCK_BASE_URL}/users`;
+  // const PostUrl = "https://69033beed0f10a340b23481e.mockapi.io/user/cartItems";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,7 +74,12 @@ export const Login = () => {
     return true;
   };
   const handleSubmit = async () => {
-    // if (!validateusername() || !validateEmail() || !validatePassword()) return;
+    setError({
+      usernameError: "",
+      emailError: "",
+      idError: "",
+    });
+    if (!validateusername() || !validateEmail() || !validatePassword()) return;
 
     const payload = {
       username: formData.username,
@@ -83,21 +89,21 @@ export const Login = () => {
 
     try {
       if (isSignUp) {
-     const data=  await axios.post(apiUrl, payload);
-        console.log(" SignUp successful",data);
+        const data = await axios.post(apiUrl, payload);
+        console.log(" SignUp successful", data);
         setIsSignUp(false);
         setFormData({ username: "", email: "", password: "" });
       } else {
         const res = await axios.get(apiUrl);
         const userFound = await res.data.find(
-          (u) => u.email === formData.email &&u.password===formData.password
+          (u) => u.email === formData.email && u.password === formData.password
         );
 
-        console.log("typeof userFound", typeof userFound, userFound)
+        console.log("typeof userFound", typeof userFound, userFound);
 
         if (userFound) {
           console.log(`Welcome back, ${userFound.username}!`);
-          localStorage.setItem('accessToken',JSON.stringify(userFound));
+          localStorage.setItem("accessToken", JSON.stringify(userFound));
           navigate("/home");
         } else {
           console.log("User not found! Please sign up first.");
@@ -109,123 +115,125 @@ export const Login = () => {
   };
 
   return (
-     <Box
+    <Box
       sx={{
-        minHeight: "100vh", 
-        justifyContent: "center", 
-        alignItems: "center", 
+        minHeight: "100vh",
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
-    <Container
-      sx={{
-        width: { xs: "90%", sm: "70%", md: "45%", lg: "35%" },
-        boxShadow: 3,
-        display: "flex",
-        flexDirection: "column",
-        py: { xs: "1rem", sm: "1.5rem" },
-        px: { xs: "1.5rem", sm: "2rem" },
-        borderRadius: 2,
-        marginTop:  "2rem" ,
-        backgroundColor: "#fff",
-      }}
-    >
-      <Typography
-        variant="h5"
-        textAlign="center"
-        fontWeight="bold"
-        sx={{ fontSize: "2rem" }}
-        mb={2}
-      >
-        {isSignUp ? "Sign Up" : "Sign In"}
-      </Typography>
-
-      {isSignUp && (
-        <>
-          <FormLabel>User Name</FormLabel>
-          <TextField
-            placeholder="Enter Username"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            fullWidth
-            sx={{ mb: "0.5rem", "& .MuiInputBase-root": { height: "45px" } }}
-          />
-          {error.usernameError && (
-            <Typography sx={{ color: "red", fontSize: "0.8rem", mb: "0.5rem" }}>
-              {error.usernameError}
-            </Typography>
-          )}
-        </>
-      )}
-
-      <FormLabel>Email</FormLabel>
-      <TextField
-        placeholder="Enter Email"
-        name="email"
-        type="email"
-        value={formData.email}
-        onChange={handleChange}
-        fullWidth
-        sx={{ mb: "0.5rem", "& .MuiInputBase-root": { height: "45px" } }}
-      />
-      {error.emailError && (
-        <Typography sx={{ color: "red", fontSize: "0.8rem", mb: "0.5rem" }}>
-          {error.emailError}
-        </Typography>
-      )}
-
-      <FormLabel>User Password</FormLabel>
-      <TextField
-        placeholder="Enter User ID"
-        name="password"
-        value={formData.password}
-        onChange={handleChange}
-        fullWidth
-        sx={{ mb: "1rem", "& .MuiInputBase-root": { height: "45px" } }}
-      />
-      {error.idError && (
-        <Typography sx={{ color: "red", fontSize: "0.8rem", mb: "0.5rem" }}>
-          {error.idError}
-        </Typography>
-      )}
-
-      <Button
-        variant="contained"
-        onClick={handleSubmit}
+      <Container
         sx={{
-          mt: 1,
-          height: "45px",
-          fontWeight: "bold",
-          textTransform: "none",
+          width: { xs: "90%", sm: "70%", md: "45%", lg: "35%" },
+          boxShadow: 3,
+          display: "flex",
+          flexDirection: "column",
+          py: { xs: "1rem", sm: "1.5rem" },
+          px: { xs: "1.5rem", sm: "2rem" },
+          borderRadius: 2,
+          marginTop: "2rem",
+          backgroundColor: "#fff",
         }}
       >
-        {isSignUp ? "Sign Up" : "Login"}
-      </Button>
+        <Typography
+          variant="h5"
+          textAlign="center"
+          fontWeight="bold"
+          sx={{ fontSize: "2rem" }}
+          mb={2}
+        >
+          {isSignUp ? "Sign Up" : "Sign In"}
+        </Typography>
 
-      <Typography sx={{ fontSize: "0.8rem", mt: 2, textAlign: "center" }}>
-        {isSignUp ? (
+        {isSignUp && (
           <>
-            Already have an account?{" "}
-            <span
-              style={{ color: "#1976d2", cursor: "pointer" }}
-              onClick={() => setIsSignUp(false)}
-            >
-              Login here
-            </span>
-          </>
-        ) : (
-          <>
-            Don’t have an account?{" "}
-            <span
-              style={{ color: "#1976d2", cursor: "pointer" }}
-              onClick={() => setIsSignUp(true)}
-            >
-              Create one
-            </span>
+            <FormLabel>User Name</FormLabel>
+            <TextField
+              placeholder="Enter Username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              fullWidth
+              sx={{ mb: "0.5rem", "& .MuiInputBase-root": { height: "45px" } }}
+            />
+            {error.usernameError && (
+              <Typography
+                sx={{ color: "red", fontSize: "0.8rem", mb: "0.5rem" }}
+              >
+                {error.usernameError}
+              </Typography>
+            )}
           </>
         )}
-      </Typography>
-    </Container>
+
+        <FormLabel>Email</FormLabel>
+        <TextField
+          placeholder="Enter Email"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+          fullWidth
+          sx={{ mb: "0.5rem", "& .MuiInputBase-root": { height: "45px" } }}
+        />
+        {error.emailError && (
+          <Typography sx={{ color: "red", fontSize: "0.8rem", mb: "0.5rem" }}>
+            {error.emailError}
+          </Typography>
+        )}
+
+        <FormLabel>User Password</FormLabel>
+        <TextField
+          placeholder="Enter User ID"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          fullWidth
+          sx={{ mb: "1rem", "& .MuiInputBase-root": { height: "45px" } }}
+        />
+        {error.idError && (
+          <Typography sx={{ color: "red", fontSize: "0.8rem", mb: "0.5rem" }}>
+            {error.idError}
+          </Typography>
+        )}
+
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
+          sx={{
+            mt: 1,
+            height: "45px",
+            fontWeight: "bold",
+            textTransform: "none",
+          }}
+        >
+          {isSignUp ? "Sign Up" : "Login"}
+        </Button>
+
+        <Typography sx={{ fontSize: "0.8rem", mt: 2, textAlign: "center" }}>
+          {isSignUp ? (
+            <>
+              Already have an account?{" "}
+              <span
+                style={{ color: "#1976d2", cursor: "pointer" }}
+                onClick={() => setIsSignUp(false)}
+              >
+                Login here
+              </span>
+            </>
+          ) : (
+            <>
+              Don’t have an account?{" "}
+              <span
+                style={{ color: "#1976d2", cursor: "pointer" }}
+                onClick={() => setIsSignUp(true)}
+              >
+                Create one
+              </span>
+            </>
+          )}
+        </Typography>
+      </Container>
     </Box>
   );
 };
