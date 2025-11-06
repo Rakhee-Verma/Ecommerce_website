@@ -76,7 +76,7 @@ export const EditUserDetails = ({ onDataUpdated, user, setOpenDialog, openDialog
   };
   const handleSubmit = async () => {
     if (!validateusername() || !validateEmail() || !validatePassword()) return;
-    const apiUrl = "https://69033beed0f10a340b23481e.mockapi.io/user/users";
+    const apiUrl = `${import.meta.env.VITE_MOCK_BASE_URL}/users`;
 
     try {
       const payload = { username: formData.username, email: formData.email, id: formData.id, password: formData.password, profile: formData.profile }

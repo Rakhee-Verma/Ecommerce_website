@@ -1,15 +1,14 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import {Route, Routes, useLocation} from 'react-router-dom'
 import './App.css'
 import { Login } from './pages/Login'
-import { FormTable } from './components/FormTable'
-import { EditUserDetails } from './components/EditUserDetails'
 import ProtectedRoute from './components/ProtectedRoute'
 import { useState } from 'react'
 import { Home } from './pages/Home'
 import { Navbar } from './components/Navbar'
 import { VeiwDetails } from './pages/VeiwDeatils'
-import { AddCard } from './pages/Card'
+import { AddCard } from './components/Card'
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
+import { FormTable } from './pages/FormTable'
 
 function App() {
   const storedToken = localStorage.getItem('accessToken')
@@ -25,11 +24,16 @@ function App() {
     },
   })
 
+  const {pathname} = useLocation();
+
+
+  console.log("Path", pathname)
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <BrowserRouter>
-        <Navbar userDetails={storedToken} darkMode={darkMode} setDarkMode={setDarkMode} />
+     
+        { pathname !== "/" && <Navbar userDetails={storedToken} darkMode={darkMode} setDarkMode={setDarkMode} />}
         <Routes>
           <Route path='/' element={<Login setIsLoggedIn={setIsLoggedIn} />} />
           <Route path='/formTable' element={
@@ -38,12 +42,7 @@ function App() {
             </ProtectedRoute>
 
           } />
-          {/* <Route path='/editUserDetails' element={
-            <ProtectedRoute isLoggedIn={isLoggedIn}>
-              <EditUserDetails />
-            </ProtectedRoute>
-
-          } /> */}
+        
           <Route path='/home' element={<ProtectedRoute isLoggedIn={storedToken}>
             <Home />
           </ProtectedRoute>} />
@@ -54,7 +53,6 @@ function App() {
             <AddCard />
           </ProtectedRoute>} />
         </Routes>
-      </BrowserRouter>
     </ThemeProvider>
   )
 }
