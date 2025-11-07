@@ -9,8 +9,11 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { setUser } from "../redux/authSlice";
+import { useDispatch } from "react-redux";
 
 export const Login = () => {
+  const dispatch=useDispatch();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     id: "",
@@ -103,7 +106,7 @@ export const Login = () => {
 
         if (userFound) {
           console.log(`Welcome back, ${userFound.username}!`);
-          localStorage.setItem("accessToken", JSON.stringify(userFound));
+          dispatch(setUser(userFound)); 
           navigate("/home");
         } else {
           console.log("User not found! Please sign up first.");

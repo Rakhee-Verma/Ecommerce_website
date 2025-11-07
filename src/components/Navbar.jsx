@@ -1,17 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
-import {
-  AppBar,
-  Box,
-  Toolbar,
-  IconButton,
-  Typography,
-  TextField,
-  InputAdornment,
-  Popper,
-  Fade,
-  Paper,
-  MenuItem,
+import { AppBar, Box, Toolbar, IconButton, Typography, TextField, InputAdornment, Popper, Fade, Paper, MenuItem,
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Badge, { badgeClasses } from "@mui/material/Badge";
@@ -30,29 +19,34 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { searchUserDetails } from "../redux/searchSlice";
 import axios from "axios";
 import { fetchCartProducts } from "../redux/cardSlice";
+import { logout } from "../redux/authSlice";
 export const Navbar = ({ darkMode, setDarkMode }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const cartProduct = useSelector((state) => state.cart.cart);
   const productDetails = useSelector((state) => state.product.product);
-  console.log(productDetails, "productDetails");
+  const userToken = useSelector((state) => state.auth.user);
+
+  console.log(userToken.id, "userToken");
   const [anchorEl, setAnchorEl] = useState(null);
   const [openFilter, setOpenFilter] = useState(false);
   const [openMoreDetails, setopenMoreDetails] = useState(false);
   const categories = ["All", ...new Set(productDetails.map((p) => p.category))];
 
-  const storedToken = JSON.parse(localStorage.getItem("accessToken"));
-  const { username, id } = storedToken || {};
+  // const storedToken = JSON.parse(localStorage.getItem("accessToken"));
+  // const { username, id } = storedToken || {};
 
-  console.log("username", username);
+  // console.log("username", username);
 
   useEffect(() => {
     dispatch(fetchCartProducts());
-  }, [dispatch, id, cartProduct.length]);
+  }, [dispatch, cartProduct.length]);
   console.log(cartProduct.length, "cartProductLength");
 
-  const totalProducts = cartProduct?.filter((item) => item.userId === id);
+  const totalProducts = cartProduct?.filter(
+    (item) => item.userId === userToken?.id
+  );
 
   const handleFilterIcon = (event) => {
     setAnchorEl(event.currentTarget);
@@ -64,7 +58,7 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
     setOpenFilter(false);
   };
   const handleLogOutButton = () => {
-    localStorage.removeItem("accessToken");
+    dispatch(logout());
     navigate("/");
   };
 
@@ -93,13 +87,16 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
     setopenMoreDetails((prev) => !prev);
   };
   const handleTableButton = () => {
+    console.log("clicked!")
     navigate("/formTable");
     setopenMoreDetails(false);
   };
   return (
     <>
-      <Box sx={{ display: "flex", justifyContent: "space-between",mb:"5rem" }}>
-        <AppBar position="fixed" >
+      <Box
+        sx={{ display: "flex", justifyContent: "space-between", mb: "5rem" }}
+      >
+        <AppBar position="fixed">
           <Toolbar>
             <Box sx={{ display: "flex" }}>
               <Typography
@@ -109,8 +106,9 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
                 sx={{
                   display: { xs: "none", sm: "block" },
                   cursor: "pointer",
-                  fontWeight: "bold",
-                  background: "linear-gradient(90deg, #ff00cc, #333399)",
+                  fontWeight: "900",
+                  fontSize:'1.5rem',
+                  background: "linear-gradient(90deg, #ff4b2b, #ff416c, #6a11cb)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                 }}
@@ -155,7 +153,9 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
                 width: "100%",
               }}
             >
-              {username && <Typography>{username.toUpperCase()}</Typography>}
+              {userToken?.username && (
+                <Typography>{userToken.username.toUpperCase()}</Typography>
+              )}
               <IconButton
                 color="inherit"
                 size="large"
@@ -221,6 +221,7 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
                 anchorEl={anchorEl}
                 transition
                 placement="bottom-end"
+                style={{ zIndex: 1500 }} 
               >
                 {({ TransitionProps }) => (
                   <Fade {...TransitionProps} timeout={250}>

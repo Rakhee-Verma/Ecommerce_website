@@ -37,7 +37,7 @@ function App() {
         <Routes>
           <Route path='/' element={<Login setIsLoggedIn={setIsLoggedIn} />} />
           <Route path='/formTable' element={
-            <ProtectedRoute isLoggedIn={isLoggedIn}>
+            <ProtectedRoute isLoggedIn={storedToken}>
               <FormTable />
             </ProtectedRoute>
 

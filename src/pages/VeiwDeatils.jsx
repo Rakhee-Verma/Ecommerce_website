@@ -8,13 +8,14 @@ import {
   Skeleton,
   Typography,
 } from "@mui/material";
-import { useDispatch} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { AddtoCart } from "../redux/cardSlice";
-import { useState } from "react";
+import { AddtoCart, fetchCartProducts } from "../redux/cardSlice";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { styled } from "@mui/material/styles";
 import { useQuery } from "@tanstack/react-query";
+import { toast, ToastContainer } from "react-toastify";
 export const GoldRating = styled(Rating)({
   "& .MuiRating-iconFilled": {
     color: "#FFD700",
@@ -25,6 +26,7 @@ export const GoldRating = styled(Rating)({
 });
 
 export const VeiwDetails = () => {
+  const { cart } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const [count, setCount] = useState(1);
 
@@ -34,6 +36,7 @@ export const VeiwDetails = () => {
   const { id: userId } = JSON.parse(userDetails);
 
   console.log("id", id);
+  const allCartProducts = cart?.filter((item) => item.userId === userId);
 
   async function getProductDetails() {
     const res = await axios.get(
@@ -57,26 +60,33 @@ export const VeiwDetails = () => {
       setCount((prev) => (prev -= 1));
     }
   };
-
-  const postCartData = async (cardProduct) => {
-    if (cardProduct.length === 0) return;
-
+  const postCartData = async (product) => {
     try {
-      const payload = { ...cardProduct, userId };
+      const payload = { ...product, userId, productId: product.id };
+
       const res = await axios.post(
         `${import.meta.env.VITE_MOCK_BASE_URL}/cartProducts`,
         payload
       );
 
-      console.log("Cart posted successfully:", res);
+      console.log("Cart posted successfully:", res.data);
     } catch (error) {
       console.error("Error posting cart data:", error);
     }
   };
 
   const handleAddToCart = (product) => {
+    const isAlready = allCartProducts?.some(
+      (item) => Number(item.productId) === Number(product.id)
+    );
+    console.log("isAlready+++", isAlready);
+    if (isAlready) {
+      toast.warn("Already exist");
+      return;
+    }
     dispatch(AddtoCart(product));
     postCartData(product);
+    toast.success("Product added to cart !");
   };
 
   console.log("rating", product?.rating?.rate);
@@ -93,41 +103,41 @@ export const VeiwDetails = () => {
           }}
         >
           <Card
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: 4,
-            py: 3,
-            px: 2,
-            width: "90%",
-            mx: "auto",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-            borderRadius: 3,
-            alignItems: "center",
-          }}
-        >
-          <Skeleton
-            variant="rectangular"
-            width={250}
-            height={200}
             sx={{
-              borderRadius: "8px",
-              backgroundColor: "rgba(0,0,0,0.08)",
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 4,
+              py: 3,
+              px: 2,
+              width: "90%",
+              mx: "auto",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+              borderRadius: 3,
+              alignItems: "center",
             }}
-          />
-          <Box sx={{ flex: 1 }}>
-            <Skeleton width="80%" height={30} />
-            <Skeleton width="90%" height={20} />
-            <Skeleton width="70%" height={20} />
-            <Skeleton width="50%" height={25} sx={{ mb: 2 }} />
-            <Box sx={{ display: "flex", gap: 1, my: 2 }}>
-              <Skeleton variant="rectangular" width={100} height={36} />
-              <Skeleton variant="rectangular" width={100} height={36} />
-              <Skeleton variant="rectangular" width={100} height={36} />
+          >
+            <Skeleton
+              variant="rectangular"
+              width={250}
+              height={200}
+              sx={{
+                borderRadius: "8px",
+                backgroundColor: "rgba(0,0,0,0.08)",
+              }}
+            />
+            <Box sx={{ flex: 1 }}>
+              <Skeleton width="80%" height={30} />
+              <Skeleton width="90%" height={20} />
+              <Skeleton width="70%" height={20} />
+              <Skeleton width="50%" height={25} sx={{ mb: 2 }} />
+              <Box sx={{ display: "flex", gap: 1, my: 2 }}>
+                <Skeleton variant="rectangular" width={100} height={36} />
+                <Skeleton variant="rectangular" width={100} height={36} />
+                <Skeleton variant="rectangular" width={100} height={36} />
+              </Box>
+              <Skeleton variant="rectangular" width={200} height={36} />
             </Box>
-            <Skeleton variant="rectangular" width={200} height={36} />
-          </Box>
-        </Card>
+          </Card>
         </Box>
       </>
     );
@@ -237,6 +247,7 @@ export const VeiwDetails = () => {
             </Box>
           </CardContent>
         </Card>
+        <ToastContainer position="bottom-right" />
       </Box>
     </>
   );

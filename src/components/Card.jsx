@@ -26,10 +26,12 @@ export const AddCard = () => {
     dispatch(fetchCartProducts());
   }, [dispatch]);
 
+  console.log("cardView****", cart)
+
   const handleProductVeiw = (product) => {
     navigate(`/veiwDetails/${product.id}`);
   };
-  const handleDeleteItem = async (id) => {
+  const handleDeleteProduct = async (id) => {
     try {
       await axios.delete(`${api}/${id}`);
       dispatch(fetchCartProducts());
@@ -44,10 +46,12 @@ export const AddCard = () => {
   const decrement = (id, count) => {
     if (count > 1) {
       dispatch(decrese(id));
-    } else {
-      handleDeleteItem(id);
     }
   };
+  const handleDeleteCart=(id)=>{
+     handleDeleteProduct(id);
+     
+  }
   if (loading) {
     return (
       <Box
@@ -84,7 +88,7 @@ export const AddCard = () => {
               <Skeleton width="60%" height={20} />
               <Skeleton width="40%" height={20} />
               <Skeleton width="50%" height={25} />
-              <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
+              <Box sx={{ display: "flex",justifyContent:'space-between', mt: 2 }}>
                 <Skeleton variant="rectangular" width={100} height={36} />
                 <Skeleton variant="rectangular" width={100} height={36} />
               </Box>
@@ -122,6 +126,7 @@ export const AddCard = () => {
                 },
                 width: { xs: "90%", sm: "80%", md: "300px" },
                 transition: "transform 0.3s ease",
+                p:'10px'
               }}
             >
               <Box onClick={() => handleProductVeiw(product)}>
@@ -137,7 +142,7 @@ export const AddCard = () => {
                     p: 2,
                   }}
                 />
-                <CardContent>
+                <Box>
                   <Typography
                     variant="h6"
                     fontWeight="bold"
@@ -182,9 +187,9 @@ export const AddCard = () => {
                       ({product.rating.rate}) rating
                     </Typography>
                   </Box>
-                </CardContent>
+                </Box>
               </Box>
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Box
                   sx={{
                     border: 1,
@@ -192,6 +197,7 @@ export const AddCard = () => {
                     display: "flex",
                     alignItems: "center",
                     width: "46%",
+                    height:'40px',
                     mb: 2,
                   }}
                 >
@@ -202,6 +208,19 @@ export const AddCard = () => {
                   <span>{product.count}</span>
                   <Button onClick={() => increment(product.id)}>+</Button>
                 </Box>
+                <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: "#d32f2f",
+                      color: "#fff",
+                      fontWeight: "bold",
+                      textTransform: "none",
+                      height:'40px',
+                    }}
+                    onClick={() => handleDeleteCart(product.id)}
+                  >
+                  Remove
+                  </Button>
               </Box>
             </Card>
           );

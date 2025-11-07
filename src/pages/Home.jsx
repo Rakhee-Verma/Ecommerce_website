@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts} from "../redux/productSlice";
+import { fetchProducts } from "../redux/productSlice";
 import {
   Box,
   Button,
@@ -13,40 +13,58 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { AddtoCart } from "../redux/cardSlice";
+import { AddtoCart, fetchCartProducts } from "../redux/cardSlice";
 import { toast, ToastContainer } from "react-toastify";
 export const Home = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { filterProducts, loading } = useSelector((state) => state.product);
+  const cartProduct = useSelector((state) => state.cart.cart);
   const userDetails = localStorage.getItem("accessToken");
   const { id: userId } = JSON.parse(userDetails);
-  console.log("filterProducts", filterProducts);
+  // console.log("filterProducts", filterProducts);
 
   useEffect(() => {
     dispatch(fetchProducts());
+    dispatch(fetchCartProducts());
   }, [dispatch]);
 
-  const postCart = async (cardProduct) => {
-    if (cardProduct.length === 0) return;
+  const allCartProduct = cartProduct?.filter((item) => item.userId === userId);
 
-    try {
-      const payload = { ...cardProduct, userId };
-      const res = await axios.post(
-        `${import.meta.env.VITE_MOCK_BASE_URL}/cartProducts`,
-        payload
-      );
+  console.log("HomeVIew Cart::::", cartProduct);
 
-      console.log("Cart posted successfully:", res);
-    } catch (error) {
-      console.error("Error posting cart data:", error);
-    }
-  };
-  const handleAddToCart = (product) => {
-    dispatch(AddtoCart(product));
-    postCart(product);
-    console.log("productttt", product);
-  };
+  console.log("allCartProduct::::>>>'", allCartProduct)
+
+  console.log()
+
+  const postCart = async (product) => {
+  try {
+    const payload = { ...product, userId, productId: product.id }; // ✅ productId added
+    const res = await axios.post(
+      `${import.meta.env.VITE_MOCK_BASE_URL}/cartProducts`,
+      payload
+    );
+    console.log("Cart posted successfully:", res);
+  } catch (error) {
+    console.error("Error posting cart data:", error);
+  }
+};
+
+const handleAddToCart = (product) => {
+  const isAlready = allCartProduct?.some(
+    (item) => Number(item.productId) === Number(product.id) // ✅ compare with productId
+  );
+
+  if (isAlready) {
+    toast.warn("Already exist");
+    return;
+  }
+
+  dispatch(AddtoCart(product));
+  toast.success("Added to cart");
+  postCart(product);
+};
+
   const handleVeiwDetails = (product) => {
     navigate(`/veiwDetails/${product.id}`);
   };
@@ -79,7 +97,11 @@ export const Home = () => {
                 boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
               }}
             >
-              <Skeleton variant="rectangular" height={140} sx={{ borderRadius: "8px" }} />
+              <Skeleton
+                variant="rectangular"
+                height={140}
+                sx={{ borderRadius: "8px" }}
+              />
               <Box sx={{ mt: 2 }}>
                 <Skeleton width="80%" height={30} />
                 <Skeleton width="60%" height={20} />
@@ -96,8 +118,6 @@ export const Home = () => {
       </Container>
     );
   }
-  // react-toastify
-  const notify = () => toast.success("Product added to cart!");
   return (
     <Container sx={{ my: 4 }}>
       <Box
@@ -120,7 +140,7 @@ export const Home = () => {
                 maxWidth: 345,
                 padding: "10px",
                 "&:hover": {
-                  backgroundColor:'rgba(0, 0, 0, 0.2)',
+                  backgroundColor: "rgba(0, 0, 0, 0.2)",
                   boxShadow: "0 8px 20px rgba(0, 0, 0, 0.2)",
                 },
               }}
@@ -205,10 +225,9 @@ export const Home = () => {
                     fontWeight: "bold",
                     textTransform: "none",
                   }}
-                  onClick={() => {
-                    handleAddToCart(product);
-                    notify();
-                  }}
+                  onClick={() => 
+                    handleAddToCart(product)
+                  }
                 >
                   Add to Cart
                 </Button>

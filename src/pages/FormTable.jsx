@@ -25,6 +25,7 @@ import axios from "axios";
 import { EditUserDetails } from "../components/EditUserDetails";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserDetails } from "../redux/searchSlice";
+import { setUser } from "../redux/authSlice";
 export const FormTable = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -81,12 +82,10 @@ export const FormTable = () => {
   const handleDataUpdated = () => {
     getUserData();
   };
-  const handleTableRow=(user)=>{
-    localStorage.removeItem("accessToken");
-    localStorage.setItem("accessToken",JSON.stringify(user))
-    console.log("userToken",user);
-    
-  }
+  
+const handleTableRow = (user) => {
+  dispatch(setUser(user)); 
+};
   return (
     <>
       <Container sx={{ marginTop: "4rem" }}>
