@@ -20,6 +20,7 @@ import { searchUserDetails } from "../redux/searchSlice";
 import axios from "axios";
 import { fetchCartProducts } from "../redux/cardSlice";
 import { logout } from "../redux/authSlice";
+import { toast, ToastContainer } from "react-toastify";
 export const Navbar = ({ darkMode, setDarkMode }) => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -60,6 +61,7 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
   const handleLogOutButton = () => {
     dispatch(logout());
     navigate("/");
+    toast.success("Logged out successfully!");
   };
 
   const CartBadge = styled(Badge)`
@@ -250,6 +252,7 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
           </Toolbar>
         </AppBar>
       </Box>
+      <ToastContainer position="bottom-right"/>
     </>
   );
 };

@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { setUser } from "../redux/authSlice";
 import { useDispatch } from "react-redux";
+import { toast, ToastContainer } from "react-toastify";
 
 export const Login = () => {
   const dispatch=useDispatch();
@@ -94,6 +95,7 @@ export const Login = () => {
       if (isSignUp) {
         const data = await axios.post(apiUrl, payload);
         console.log(" SignUp successful", data);
+        toast.success("SignUp successfull!")
         setIsSignUp(false);
         setFormData({ username: "", email: "", password: "" });
       } else {
@@ -107,7 +109,11 @@ export const Login = () => {
         if (userFound) {
           console.log(`Welcome back, ${userFound.username}!`);
           dispatch(setUser(userFound)); 
-          navigate("/home");
+          toast.success("Login successfull!")
+          setTimeout(()=>{
+             navigate("/home");
+          },1000)
+         
         } else {
           console.log("User not found! Please sign up first.");
         }
@@ -237,6 +243,7 @@ export const Login = () => {
           )}
         </Typography>
       </Container>
+      <ToastContainer position="bottom-right"/>
     </Box>
   );
 };
