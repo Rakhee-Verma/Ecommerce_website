@@ -189,7 +189,7 @@ export const VeiwDetails = () => {
             <Typography variant="p" sx={{ color: "text.secondary", mb: 1 }}>
               {product?.category}
             </Typography>
-            <Box sx={{ display: "flex" }}>
+            <Box sx={{ display: {lg:"flex", sm:'block'} }}>
               <Typography variant="h5" sx={{ pt: 2 }}>
                 ${product?.price * count}
               </Typography>
@@ -200,7 +200,7 @@ export const VeiwDetails = () => {
                     display: "flex",
                     justifyContent: "space-between",
                     my: 2,
-                    marginLeft: "2rem",
+                    marginLeft: {lg:"2rem",sm:0},
                   }}
                 >
                   <span onClick={decrement} style={{ marginInline: "1rem" }}>
@@ -217,7 +217,7 @@ export const VeiwDetails = () => {
                 variant="contained"
                 color="primary"
                 onClick={() => handleAddToCart(product)}
-                sx={{ m: 2 }}
+                sx={{ m: {lg:2,sm:0}}}
               >
                 Add to Cart
               </Button>

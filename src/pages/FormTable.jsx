@@ -82,10 +82,10 @@ export const FormTable = () => {
   const handleDataUpdated = () => {
     getUserData();
   };
-  
-const handleTableRow = (user) => {
-  dispatch(setUser(user)); 
-};
+
+  const handleTableRow = (user) => {
+    dispatch(setUser(user));
+  };
   return (
     <>
       <Container sx={{ marginTop: "4rem" }}>
@@ -135,7 +135,7 @@ const handleTableRow = (user) => {
 
             <TableBody>
               {filterDetails?.map((user, i) => (
-                <TableRow key={i} onClick={()=>handleTableRow(user)} sx={{cursor:"pointer"}} >
+                <TableRow key={i} onClick={() => handleTableRow(user)}  sx={{ cursor: "pointer" }} >
                   <TableCell sx={{ width: "100px" }}>
                     {user.profile ? (
                       <img
@@ -181,10 +181,16 @@ const handleTableRow = (user) => {
                     {openRow === i && (
                       <Popper
                         open={openRow === i}
-                        anchorEl={anchorEl}
+                        anchorEl={openRow === i ? anchorEl : null}
                         placement="bottom-end"
                         transition
                         disablePortal
+                        modifiers={[
+                          {
+                            name: "flip",
+                            enabled: false,
+                          }
+                        ]}
                       >
                         {({ TransitionProps }) => (
                           <Fade {...TransitionProps} timeout={250}>

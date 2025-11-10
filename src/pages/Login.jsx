@@ -14,7 +14,7 @@ import { useDispatch } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
 
 export const Login = () => {
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     id: "",
@@ -26,7 +26,7 @@ export const Login = () => {
   const [error, setError] = useState({
     usernameError: "",
     emailError: "",
-    password: "",
+    passwordError: "",
   });
 
   const apiUrl = `${import.meta.env.VITE_MOCK_BASE_URL}/users`;
@@ -72,7 +72,10 @@ export const Login = () => {
   const validatePassword = () => {
     const password = formData.password.trim();
     if (!password) {
-      setError((prev) => ({ ...prev, idError: "Please enter user password" }));
+      setError((prev) => ({
+        ...prev,
+        passwordError: "Please enter user password",
+      }));
       return false;
     }
     return true;
@@ -81,9 +84,14 @@ export const Login = () => {
     setError({
       usernameError: "",
       emailError: "",
-      idError: "",
+      passwordError: "",
     });
-    if (!validateusername() || !validateEmail() || !validatePassword()) return;
+    if (isSignUp) {
+      if (!validateusername() || !validateEmail() || !validatePassword())
+        return;
+    } else {
+      if (!validateEmail() || !validatePassword()) return;
+    }
 
     const payload = {
       username: formData.username,
@@ -95,29 +103,41 @@ export const Login = () => {
       if (isSignUp) {
         const data = await axios.post(apiUrl, payload);
         console.log(" SignUp successful", data);
-        toast.success("SignUp successfull!")
+        toast.success("SignUp successfull!");
         setIsSignUp(false);
         setFormData({ username: "", email: "", password: "" });
-      } else {
-        const res = await axios.get(apiUrl);
-        const userFound = await res.data.find(
-          (u) => u.email === formData.email && u.password === formData.password
-        );
-
-        console.log("typeof userFound", typeof userFound, userFound);
-
-        if (userFound) {
-          console.log(`Welcome back, ${userFound.username}!`);
-          dispatch(setUser(userFound)); 
-          toast.success("Login successfull!")
-          setTimeout(()=>{
-             navigate("/home");
-          },1000)
-         
-        } else {
-          console.log("User not found! Please sign up first.");
-        }
+        return;
       }
+
+      const res = await axios.get(apiUrl);
+      const userByEmail = res.data.find((u) => u.email === formData.email);
+      const userByPassword = res.data.find(
+        (u) => u.password === formData.password
+      );
+
+      if (userByEmail && userByEmail.password === formData.password) {
+        dispatch(setUser(userByEmail));
+        toast.success("Login successfull!");
+        setTimeout(() => {
+          navigate("/home");
+        }, 1000);
+        return;
+      }
+      const newErrors = {
+        usernameError: "",
+        emailError: "",
+        passwordError: "",
+      };
+      if (!userByEmail) {
+        newErrors.emailError = "Wrong email!";
+      }
+      if (!userByPassword || (userByEmail && userByEmail.password !== formData.password)) {
+        newErrors.passwordError = "Wrong password!";
+      }
+      setError((prev) => ({ ...prev, ...newErrors }));
+      console.log(
+        "User not found or credentials mismatch. Please sign up or correct the details."
+      );
     } catch (error) {
       console.error("Error:", error);
     }
@@ -151,7 +171,7 @@ export const Login = () => {
           sx={{ fontSize: "2rem" }}
           mb={2}
         >
-          {isSignUp ? "Sign Up" : "Sign In"}
+          {isSignUp ? "Sign Up" : "Login"}
         </Typography>
 
         {isSignUp && (
@@ -200,9 +220,9 @@ export const Login = () => {
           fullWidth
           sx={{ mb: "1rem", "& .MuiInputBase-root": { height: "45px" } }}
         />
-        {error.idError && (
+        {error.passwordError && (
           <Typography sx={{ color: "red", fontSize: "0.8rem", mb: "0.5rem" }}>
-            {error.idError}
+            {error.passwordError}
           </Typography>
         )}
 
@@ -225,7 +245,15 @@ export const Login = () => {
               Already have an account?{" "}
               <span
                 style={{ color: "#1976d2", cursor: "pointer" }}
-                onClick={() => setIsSignUp(false)}
+                onClick={() => {
+                  setIsSignUp(false);
+                  setError({
+                    usernameError: "",
+                    emailError: "",
+                    passwordError: "",
+                  });
+                  setFormData({ username: "", email: "", password: "" });
+                }}
               >
                 Login here
               </span>
@@ -235,7 +263,15 @@ export const Login = () => {
               Don’t have an account?{" "}
               <span
                 style={{ color: "#1976d2", cursor: "pointer" }}
-                onClick={() => setIsSignUp(true)}
+                onClick={() => {
+                  setIsSignUp(true);
+                  setError({
+                    usernameError: "",
+                    emailError: "",
+                    passwordError: "",
+                  });
+                  setFormData({ username: "", email: "", password: "" });
+                }}
               >
                 Create one
               </span>
@@ -243,7 +279,7 @@ export const Login = () => {
           )}
         </Typography>
       </Container>
-      <ToastContainer position="bottom-right"/>
+      <ToastContainer position="bottom-right" />
     </Box>
   );
 };
