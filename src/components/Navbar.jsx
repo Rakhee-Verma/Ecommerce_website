@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AppBar,
   Box,
@@ -15,7 +15,8 @@ import {
   List,
   ListItemButton,
   ListItemText,
-  Divider,
+  ListItemIcon,
+  Checkbox,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -48,6 +49,7 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
   const [openFilter, setOpenFilter] = useState(false);
   const [openMoreDetails, setopenMoreDetails] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   const cartProduct = useSelector((state) => state.cart.cart);
   const productDetails = useSelector((state) => state.product.product);
@@ -73,19 +75,38 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
   const handleFilterIcon = (event) => {
     setAnchorEl(event.currentTarget);
     setOpenFilter((prev) => !prev);
+    setopenMoreDetails(false);
   };
 
   const handleCategorySelect = (category) => {
-    dispatch(filterProductByCategory(category));
+    const newCategory = selectedCategory === category ? "All" : category;
+    setSelectedCategory(newCategory);
+    dispatch(filterProductByCategory(newCategory));
     setOpenFilter(false);
   };
 
+  const debounce = useCallback((func, delay) => {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => func(...args), delay);
+    };
+  }, []);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value) => {
+        if (location.pathname === "/home") {
+          dispatch(filterProductBySearch(value));
+        } else if (location.pathname === "/formTable") {
+          dispatch(searchUserDetails(value));
+        }
+      }, 500),
+    [dispatch, location.pathname]
+  );
   const handleSearchChange = (e) => {
-    if (location.pathname === "/home") {
-      dispatch(filterProductBySearch(e.target.value));
-    } else if (location.pathname === "/formTable") {
-      dispatch(searchUserDetails(e.target.value));
-    }
+    const value = e.target.value.trim();
+    console.log(e.target.value);
+    debouncedSearch(value);
   };
 
   const handleLogOutButton = () => {
@@ -118,9 +139,7 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
 
   return (
     <>
-      <AppBar
-        position="fixed"
-      >
+      <AppBar position="fixed">
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           <Typography
             variant="h6"
@@ -188,10 +207,11 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
               anchorEl={anchorEl}
               transition
               placement="bottom-end"
+              style={{ zIndex: 1500 }}
             >
               {({ TransitionProps }) => (
                 <Fade {...TransitionProps} timeout={250}>
-                  <Paper sx={{ p: 1, width: 150 }}>
+                  <Paper sx={{ p: 1, width: 200 }}>
                     {categories.map((category, i) => (
                       <MenuItem
                         key={i}
@@ -202,7 +222,14 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
                           color: "#5d5e8aff",
                         }}
                       >
-                        {category}
+                        <ListItemIcon sx={{}}>
+                          <Checkbox
+                            edge="start"
+                            size="small"
+                            checked={selectedCategory === category}
+                          />
+                        </ListItemIcon>
+                        <ListItemText primary={category} />
                       </MenuItem>
                     ))}
                   </Paper>
@@ -230,9 +257,39 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
               <LogoutIcon />
             </IconButton>
 
-            <IconButton color="inherit" onClick={handleMoreIcon}>
+            <IconButton color="inherit" size="large" onClick={handleMoreIcon}>
               <MoreVertIcon />
             </IconButton>
+            <Popper
+              open={openMoreDetails}
+              anchorEl={anchorEl}
+              transition
+              placement="bottom-end"
+              style={{ zIndex: 1500 }}
+            >
+              {({ TransitionProps }) => (
+                <Fade {...TransitionProps} timeout={250}>
+                  <Paper sx={{ p: 1, width: 120 }}>
+                    <Typography
+                      sx={{
+                        color: "#5d5e8aff",
+                        fontWeight: "600",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.8,
+                        fontSize: "0.9rem",
+                        cursor: "pointer",
+                        py: 0.5,
+                        px: 1,
+                      }}
+                      onClick={handleTableButton}
+                    >
+                      Admin
+                    </Typography>
+                  </Paper>
+                </Fade>
+              )}
+            </Popper>
           </Box>
           <IconButton
             sx={{ display: { xs: "flex", sm: "none" } }}
@@ -248,7 +305,7 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
         open={mobileMenuOpen}
         onClose={toggleDrawer(false)}
         ModalProps={{
-          keepMounted: true, 
+          keepMounted: true,
         }}
         PaperProps={{
           sx: {
@@ -288,7 +345,7 @@ export const Navbar = ({ darkMode, setDarkMode }) => {
         </Box>
       </Drawer>
       <ToastContainer position="bottom-right" />
-      <Toolbar /> 
+      <Toolbar />
     </>
   );
 };

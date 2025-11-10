@@ -3,6 +3,7 @@ import {
   Button,
   CardContent,
   CardMedia,
+  Pagination,
   Rating,
   Skeleton,
   Typography,
@@ -99,7 +100,8 @@ export const AddCard = () => {
     );
   }
   return (
-    <Box
+    <Box sx={{m:2}}>
+        <Box
       sx={{
         m: "1rem",
         display: "grid",
@@ -233,6 +235,15 @@ export const AddCard = () => {
           No Product Available in Cart
         </Typography>
       )}
+    
     </Box>
+    {cartProduct.length>0&&
+     <Box component="h1" sx={{width:"100"}}>
+      <Typography sx={{ display:"flex",justifyContent:"flex-end",fontWeight:900 ,color:"#2196f3"}}>Total Number Of Cart:{cartProduct.length}</Typography>
+      </Box> 
+      }
+    
+    </Box>
+  
   );
 };

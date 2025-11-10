@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../redux/productSlice";
 import {
@@ -8,6 +8,7 @@ import {
   Card,
   CardMedia,
   Container,
+  Pagination,
   Rating,
   Skeleton,
   Typography,
@@ -16,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { AddtoCart, fetchCartProducts } from "../redux/cardSlice";
 import { toast, ToastContainer } from "react-toastify";
 export const Home = () => {
+  const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { filterProducts, loading } = useSelector((state) => state.product);
@@ -33,43 +35,53 @@ export const Home = () => {
 
   console.log("HomeVIew Cart::::", cartProduct);
 
-  console.log("allCartProduct::::>>>'", allCartProduct)
+  console.log("allCartProduct::::>>>'", allCartProduct);
 
-  console.log()
+  console.log();
 
   const postCart = async (product) => {
-  try {
-    const payload = { ...product, userId, productId: product.id }; // ✅ productId added
-    const res = await axios.post(
-      `${import.meta.env.VITE_MOCK_BASE_URL}/cartProducts`,
-      payload
+    try {
+      const payload = { ...product, userId, productId: product.id }; // ✅ productId added
+      const res = await axios.post(
+        `${import.meta.env.VITE_MOCK_BASE_URL}/cartProducts`,
+        payload
+      );
+      console.log("Cart posted successfully:", res);
+    } catch (error) {
+      console.error("Error posting cart data:", error);
+    }
+  };
+
+  const handleAddToCart = (product) => {
+    const isAlready = allCartProduct?.some(
+      (item) => Number(item.productId) === Number(product.id) // ✅ compare with productId
     );
-    console.log("Cart posted successfully:", res);
-  } catch (error) {
-    console.error("Error posting cart data:", error);
-  }
-};
 
-const handleAddToCart = (product) => {
-  const isAlready = allCartProduct?.some(
-    (item) => Number(item.productId) === Number(product.id) // ✅ compare with productId
-  );
+    if (isAlready) {
+      toast.warn("Already exist");
+      return;
+    }
 
-  if (isAlready) {
-    toast.warn("Already exist");
-    return;
-  }
-
-  dispatch(AddtoCart(product));
-  toast.success("Added to cart");
-  postCart(product);
-};
+    dispatch(AddtoCart(product));
+    toast.success("Added to cart");
+    postCart(product);
+  };
 
   const handleVeiwDetails = (product) => {
     navigate(`/veiwDetails/${product.id}`);
   };
   const handleCardVeiwDetails = (product) => {
     navigate(`/veiwDetails/${product.id}`);
+  };
+  // pagination
+  const productPerPage = 4;
+  const displayProduct = filterProducts.slice(
+    (page - 1) * productPerPage,
+    page * productPerPage
+  );
+  const totalPage = Math.ceil(filterProducts.length / productPerPage);
+  const handlePagination = (event, value) => {
+    setPage(value);
   };
   // loading
   if (loading) {
@@ -133,7 +145,7 @@ const handleAddToCart = (product) => {
           justifyContent: "center",
         }}
       >
-        {filterProducts.map((product) => {
+        {displayProduct.map((product) => {
           return (
             <Card
               sx={{
@@ -225,9 +237,7 @@ const handleAddToCart = (product) => {
                     fontWeight: "bold",
                     textTransform: "none",
                   }}
-                  onClick={() => 
-                    handleAddToCart(product)
-                  }
+                  onClick={() => handleAddToCart(product)}
                 >
                   Add to Cart
                 </Button>
@@ -248,6 +258,13 @@ const handleAddToCart = (product) => {
           );
         })}
       </Box>
+      <Pagination
+        count={totalPage}
+        color="primary"
+        sx={{ display: "flex", justifyContent: "center" ,mt:4}}
+        page={page}
+        onChange={handlePagination}
+      />
       <ToastContainer position="bottom-right" />
     </Container>
   );
